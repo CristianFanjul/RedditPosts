@@ -8,10 +8,12 @@ import com.cmf.redditposts.domain.GetArticlesUseCase
 import com.cmf.redditposts.domain.Result
 import com.cmf.redditposts.model.Article
 import com.cmf.redditposts.model.QueryParams
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class HomeViewModel @Inject constructor(
     private val articlesUseCase: GetArticlesUseCase
 ) : ViewModel() {
@@ -63,8 +65,19 @@ class HomeViewModel @Inject constructor(
             } else {
                 _dataLoading.postValue(false)
                 val message = (apiResponse as Result.Error).exception.message
-                _snackbarText.postValue(message)
+                _snackbarText.postValue(message!!)
             }
         }
+    }
+
+    fun onArticleClicked(item: Article) {
+        item.read = true
+        _items.value?.indexOf(item)?.let {
+            _items.value?.get(it)?.read = true
+        }
+    }
+
+    fun onArticleDismissed(item: Article) {
+        _items.value?.remove(item)
     }
 }

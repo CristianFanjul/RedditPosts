@@ -3,11 +3,11 @@ package com.cmf.redditposts.misc
 import android.content.res.Configuration
 import android.view.View
 import androidx.fragment.app.FragmentActivity
-import com.cmf.redditposts.RedditPosts
+import com.cmf.redditposts.RedditPostsApp
 import com.google.android.material.snackbar.Snackbar
 
 fun FragmentActivity?.isScreenLandscape(): Boolean {
-    return RedditPosts.instance.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    return RedditPostsApp.instance.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 }
 
 fun Int.isLandscape(): Boolean {

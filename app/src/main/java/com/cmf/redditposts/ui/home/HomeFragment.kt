@@ -2,44 +2,33 @@ package com.cmf.redditposts.ui.home
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cmf.redditposts.R
-import com.cmf.redditposts.misc.Constants
 import com.cmf.redditposts.misc.showSnackbar
 import com.cmf.redditposts.model.Article
 import com.cmf.redditposts.ui.main.ArticlesAdapter
 import com.cmf.redditposts.ui.main.IOnArticleListener
-import dagger.android.support.DaggerFragment
+import dagger.hilt.android.AndroidEntryPoint
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_home.*
-import javax.inject.Inject
 
-class HomeFragment : DaggerFragment(R.layout.fragment_home), IOnArticleListener {
+@AndroidEntryPoint
+class HomeFragment : Fragment(R.layout.fragment_home), IOnArticleListener {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    private val viewModel by viewModels<HomeViewModel> {
-        viewModelFactory
-    }
+    private val viewModel: HomeViewModel by viewModels()
 
     private val adapter = ArticlesAdapter(this)
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupToolbar()
         setupAdapter()
         setupObservers()
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         if (adapter.getItems().isNullOrEmpty()) {
             viewModel.loadInitialArticles()
         }
@@ -63,19 +52,19 @@ class HomeFragment : DaggerFragment(R.layout.fragment_home), IOnArticleListener 
     }
 
     private fun setupObservers() {
-        viewModel.dataLoading.observe(viewLifecycleOwner, Observer {
+        viewModel.dataLoading.observe(viewLifecycleOwner, {
             vw_refresh_articles.isRefreshing = it
         })
 
-        viewModel.snackbarText.observe(viewLifecycleOwner, Observer { message ->
+        viewModel.snackbarText.observe(viewLifecycleOwner, { message ->
             view.showSnackbar(message)
         })
 
-        viewModel.items.observe(viewLifecycleOwner, Observer { articles ->
+        viewModel.items.observe(viewLifecycleOwner, { articles ->
             adapter.setItems(articles)
         })
 
-        viewModel.loadMoreItems.observe(viewLifecycleOwner, Observer { articles ->
+        viewModel.loadMoreItems.observe(viewLifecycleOwner, { articles ->
             adapter.addItems(articles)
         })
 
@@ -90,21 +79,17 @@ class HomeFragment : DaggerFragment(R.layout.fragment_home), IOnArticleListener 
         }
     }
 
-    override fun onArticleClicked(item: Article) {
-        item.read = true
-        adapter.notifyDataSetChanged()
+    override fun onArticleClicked(item: Article, position: Int) {
+        viewModel.onArticleClicked(item)
+        adapter.notifyItemChanged(position)
 
-        val action =
-            HomeFragmentDirections.actionHomeFragmentToDetailFragment(item)
+        val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(item)
         view?.findNavController()?.navigate(action)
     }
 
-    override fun onArticleDismissed(item: Article) {
-        val position = adapter.getItems().indexOf(item)
-        if (position != Constants.INDEX_NOT_FOUND) {
-            adapter.getItems().removeAt(position)
-            adapter.notifyItemRemoved(position)
-        }
+    override fun onArticleDismissed(item: Article, position: Int) {
+        viewModel.onArticleDismissed(item)
+        adapter.notifyItemRemoved(position)
     }
 
     fun isRecyclerBottom(dy: Int, layoutManager: LinearLayoutManager): Boolean {

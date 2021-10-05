@@ -4,7 +4,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.cmf.redditposts.R
-import com.cmf.redditposts.RedditPosts
+import com.cmf.redditposts.RedditPostsApp
 import com.cmf.redditposts.misc.ImageLoader
 import com.cmf.redditposts.model.Article
 import com.cmf.redditposts.ui.main.IOnArticleListener
@@ -23,13 +23,28 @@ class ArticleViewHolder(
         val timeAgo = getTimeAgo(item)
         itemView.txt_vw_time.text = timeAgo
         itemView.txt_vw_comments.text =
-            RedditPosts.instance.getString(R.string.comments_number, item.comments)
+            RedditPostsApp.instance.getString(R.string.comments_number, item.comments)
         itemView.txt_vw_article_title.text = item.title ?: ""
         itemView.img_vw_read_bubble.isVisible = !item.read
 
-        itemView.vw_article_item_root.setOnClickListener { listener.onArticleClicked(item) }
-        itemView.txt_vw_dismiss_post.setOnClickListener { listener.onArticleDismissed(item) }
-        itemView.img_vw_dismiss_post.setOnClickListener { listener.onArticleDismissed(item) }
+        itemView.vw_article_item_root.setOnClickListener {
+            listener.onArticleClicked(
+                item,
+                adapterPosition
+            )
+        }
+        itemView.txt_vw_dismiss_post.setOnClickListener {
+            listener.onArticleDismissed(
+                item,
+                adapterPosition
+            )
+        }
+        itemView.img_vw_dismiss_post.setOnClickListener {
+            listener.onArticleDismissed(
+                item,
+                adapterPosition
+            )
+        }
 
         item.thumbnail?.let { ImageLoader.loadImage(it, itemView.img_vw_article_image) }
     }
