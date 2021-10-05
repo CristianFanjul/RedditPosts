@@ -77,7 +77,5 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onArticleDismissed(item: Article) {
-        _items.value?.remove(item)
-    }
+    fun onArticleDismissed(item: Article) = _items.value?.remove(item)
 }

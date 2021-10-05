@@ -34,9 +34,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), IOnArticleListener {
         }
     }
 
-    private fun setupToolbar() {
-        setHasOptionsMenu(true)
-    }
+    private fun setupToolbar() = setHasOptionsMenu(true)
 
     private fun setupAdapter() {
         val layoutManager = LinearLayoutManager(activity)
